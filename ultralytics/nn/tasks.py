@@ -3,6 +3,7 @@
 import contextlib
 from copy import deepcopy
 from pathlib import Path
+import dill
 
 import torch
 import torch.nn as nn
@@ -778,7 +779,7 @@ def torch_safe_load(weight):
                 "ultralytics.nn.tasks.YOLOv10DetectionModel": "ultralytics.nn.tasks.DetectionModel",  # YOLOv10
             },
         ):
-            ckpt = torch.load(file, map_location="cpu")
+            ckpt = torch.load(file, map_location="cpu", pickle_module=dill)
 
     except ModuleNotFoundError as e:  # e.name is missing module name
         if e.name == "models":
