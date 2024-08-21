@@ -10,6 +10,7 @@ from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import Union
+import dill
 
 import numpy as np
 import torch
@@ -550,7 +551,7 @@ def strip_optimizer(f: Union[str, Path] = "best.pt", s: str = "") -> None:
         Use `ultralytics.nn.torch_safe_load` for missing modules with `x = torch_safe_load(f)[0]`
     """
     try:
-        x = torch.load(f, map_location=torch.device("cpu"))
+        x = torch.load(f, map_location=torch.device("cpu"), pickle_module=dill)
         assert isinstance(x, dict), "checkpoint is not a Python dictionary"
         assert "model" in x, "'model' missing from checkpoint"
     except Exception as e:
@@ -584,7 +585,7 @@ def strip_optimizer(f: Union[str, Path] = "best.pt", s: str = "") -> None:
     # x['model'].args = x['train_args']
 
     # Save
-    torch.save({**updates, **x}, s or f, use_dill=False)  # combine dicts (prefer to the right)
+    torch.save({**updates, **x}, s or f, use_dill=True)  # combine dicts (prefer to the right)
     mb = os.path.getsize(s or f) / 1e6  # file size
     LOGGER.info(f"Optimizer stripped from {f},{f' saved as {s},' if s else ''} {mb:.1f}MB")
 
